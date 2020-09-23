@@ -3,47 +3,47 @@
 Queuing System Discrete Event Simulation in Python (Process interaction)
 Reference: https://www.youtube.com/watch?v=eSNfC-HOl44&list=PLJES8iAtf6Dvr7D6L0hZPramTpckN8GEU&index=3
 """
+
 import simpy
 import numpy as np
 
 def generate_interarrival():
-  return np.ranfom.exponential(1./3.0) #3 customers per minute
+    return np.random.exponential(1./3.0) #3 customers per minute
 
 def generate_service():
-  return np.random.exponential(1./4.0)
+    return np.random.exponential(1./4.0)
 
 def cafe_run(env, servers):
-  i = 0
-  while True:
-    i += 1
-    yield env.timeout(generate_interarrival())
-    env.process(customer(env, i, servers))
+    i = 0
+    while True:
+        i += 1
+        yield env.timeout(generate_interarrival())
+        env.process(customer(env, i, servers))
 
 wait_t = []    
 
-def customer(env, servers):
-  with server.request() as request:
-    t_arrival = env.now
-    print env.now, ' customer {} arrives'.format(customer)
-    yield request
-    print env.now, 'customer {} is being served'.format(customer)
-    yield env.timeout(generate_service())
-    print env.now, 'customer {} departs'.format(customer)
-    t_depart = env.now
-    wait_t.append(t_depart - t_arrival)
+def customer(env, customer, servers):
+    with servers.request() as request:
+        t_arrival = env.now
+        print (env.now, 'customer {} arrives'.format(customer))
+        yield request
+        print (env.now, 'customer {} is being served'.format(customer))
+        yield env.timeout(generate_service())
+        print (env.now, 'customer {} departs'.format(customer))
+        t_depart = env.now
+        wait_t.append(t_depart - t_arrival)
 
 obs_times = []
-q_legth = []
+q_length = []
 
 def observe(env, servers):
-  while True:
-    obs_times.append(env.now)
-    q_length.append(len(servers.queue))
-    yield env.timeout(0.5)
+    while True:
+        obs_times.append(env.now)
+        q_length.append(len(servers.queue))
+        yield env.timeout(0.5)
     
     
 np.random.seed(0)
-
 env = simpy.Environment()
 
 servers = simpy.Resource(env, capacity=1)
